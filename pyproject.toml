@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "gpt-demo"
+version = "0.1.0"
+description = ""
+authors = ["jhern254 <jhern254@ucr.edu>"]
+readme = "README.md"
+packages = [{include = "gpt_demo"}]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
