@@ -23,6 +23,7 @@ def confirm_overwrite(filename: str) -> bool:
             return False
     return True
 
+
 def download_file(url: str) -> None:
     """Download a file from the given URL.
 
@@ -36,12 +37,16 @@ def download_file(url: str) -> None:
     >>> download_file('https://example.com/myfile.zip')  # downloads myfile.zip from example.com
     """
     filename = url.rsplit('/', 1)[-1]
-    if not confirm_overwrite(filename):
-        return
+
+    if os.path.exists(filename):
+        if not confirm_overwrite(filename):
+            return 
+
     response = requests.get(url)
     response.raise_for_status()
     with open(filename, 'wb') as file:
         file.write(response.content)
+
 
 def read_file(filename: str) -> str:
     """Read the contents of the given file and return them as a string.
@@ -59,20 +64,16 @@ def read_file(filename: str) -> str:
     """
     if not os.path.exists(filename):
         raise FileNotFoundError(f"{filename} does not exist.")
-    if not confirm_overwrite(filename):
-        return ''
     with open(filename, 'r') as file:
         contents = file.read()
     return contents
 
 
-def getData():
+def getData() -> str:
     """Download data from link"""
-
-    # get data, input.txt
     download_file(url = CSV_LINK)
-
-    book = read_file("input.txt")
+    arr = read_file("./input.txt")
+    return arr
 
 
 
@@ -82,4 +83,27 @@ def getData():
 if __name__ = "__main__":
 
     if(True):
+        text = getData()
+#        print(book[:1000])
+
+# ask chatgpt for explanation and learn to code like karpathy
+        if(True):
+            chars = sorted(list(set(text)))
+            vocab_size = len(chars)
+            print(''.join(chars))
+            print(vocab_size)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
