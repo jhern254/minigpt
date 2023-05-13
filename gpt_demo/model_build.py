@@ -8,12 +8,11 @@ import logging
 import requests
 import torch
 
-
 logging.basicConfig(level=logging.DEBUG)
 
-
 CSV_LINK  = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
-BLOCK_SIZE = 8
+BLOCK_SIZE = 8  # how many independent sequences will we process in parallel?
+BATCH_SIZE = 4  # what is the maximum context length for predictions?
 
 def confirm_overwrite(filename: str) -> bool:
     """Check if the specified file already exists and prompt the user for confirmation before overwriting.
@@ -146,11 +145,54 @@ def split_data(data: torch.Tensor) -> tuple:
     val_data = data[n:]
     return train_data, val_data
 
+def get_batch(split: str) -> tuple:
+    """
+    Generate a small batch of data for inputs and targets.
+
+    Args:
+    - split (str): Specifies the data split ('train' or any other value for 'val')
+
+    Returns:
+    - Tuple[torch.Tensor, torch.Tensor]: A tuple containing the input tensor (x) and target tensor (y)
+    """
+    # Select the dataset based on the split
+    data = train_data if split == 'train' else val_data
+
+    # Generate random indices within the range of (len(data) - BLOCK_SIZE)
+    ix = torch.randint(len(data) - BLOCK_SIZE, (BATCH_SIZE,))
+
+    # Construct the input tensor (x)
+    x = torch.stack([data[i:i+BLOCK_SIZE] for i in ix])
+
+    # Construct the target tensor (y)
+    y = torch.stack([data[i+1:i+BLOCK_SIZE+1] for i in ix])
+
+    return x, y
+
+
+### Examples
+def block_size_ex() -> None:
+    """ 
+    context prediction example, p(Y | X), Y is r.v. for target, X is r.v. context sequence
+    8 examples, time dimension. Need batch dimension as well
+    NOTE: have to truncate past block size, transformer only goes up to block size inputs for pred.
+    """
+    x = train_data[:BLOCK_SIZE]
+    y = train_data[1:BLOCK_SIZE+1]
+    for t in range(BLOCK_SIZE):
+        context = x[:t+1]
+        target = y[t]
+        print(f"when input is {context} the target: {target}")
+
+
 
 
 
 
 if __name__ == "__main__":
+    # set seed
+    torch.manual_seed(1337)
+
     # get data from github
     text = getData()
 #    print(type(text))
@@ -176,6 +218,8 @@ if __name__ == "__main__":
     train_data, val_data = split_data(data)
     logging.debug(train_data[:BLOCK_SIZE+1])
 
+    if(True):
+        block_size_ex()
 
 
 
